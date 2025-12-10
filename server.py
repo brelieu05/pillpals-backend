@@ -134,12 +134,13 @@ def set_alarm(alarm: AlarmRequest):
         
         # Normalize payload: allow legacy single time or new times array
         normalized_times = alarm.times if alarm.times is not None else ([alarm.time] if alarm.time else [])
+        legacy_time_value = alarm.time if alarm.time else (normalized_times[0] if normalized_times else "")
         
         # Insert new alarm with multiple times
         cursor.execute('''
-            INSERT INTO alarms (days, times, created_at)
-            VALUES (?, ?, ?)
-        ''', (json.dumps(alarm.days), json.dumps(normalized_times), created_at))
+            INSERT INTO alarms (days, times, time, created_at)
+            VALUES (?, ?, ?, ?)
+        ''', (json.dumps(alarm.days), json.dumps(normalized_times), legacy_time_value, created_at))
         conn.commit()
         conn.close()
         
